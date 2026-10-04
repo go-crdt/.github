@@ -24,7 +24,7 @@ paired with a Go server cannot claim.
 | Repo | Role |
 | --- | --- |
 | [`crdt`](https://github.com/go-crdt/crdt) | The replicated text document: `Doc`, operations, version vectors, snapshots, and ephemeral presence. RGA sequence with tombstones; a per-site sequence number for identity and a Lamport clock for ordering. Zero dependencies. |
-| [`collab`](https://github.com/go-crdt/collab) | The gRPC service, server and client that carry a document between people: per-document fan-out, snapshot on join, presence, and a persistence seam. Reaches a browser over `grpc-transports/websocket`. |
+| [`collab`](https://github.com/go-crdt/collab) | The service, server and client that carry a document between people: per-document fan-out, snapshot on join, presence, and a persistence seam. A browser gets `collab.WebSocket`, the session's own framing; native peers get `collab.GRPC`. Both are served at once from one server. |
 | [`brand`](https://github.com/go-crdt/brand) | Logo, favicon and social banner. |
 | [`docs`](https://github.com/go-crdt/docs) | Documentation, published at [go-crdt.github.io/docs](https://go-crdt.github.io/docs/). |
 
