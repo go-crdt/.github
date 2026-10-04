@@ -50,4 +50,13 @@ included. Validated on all six of Go's 64-bit targets — amd64, arm64, riscv64,
 loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
+Full coverage says every line runs, not that anything would notice if a line
+were wrong. So each of the **230 refusals** in the files that read somebody
+else's bytes was deleted in turn, to see whether the suite went red. Three did
+not. All three were a test asserting that *an* error happened where the code
+below the deleted guard also failed, differently; they are pinned now, and the
+[nineteen survivors that were not
+defects](https://go-crdt.github.io/docs/methodology/#systematically-over-every-refusal)
+are accounted for one by one.
+
 📖 **[go-crdt.github.io](https://go-crdt.github.io/)** · **[Documentation](https://go-crdt.github.io/docs/)**
