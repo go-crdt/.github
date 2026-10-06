@@ -51,11 +51,13 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **230 refusals** in the files that read somebody
-else's bytes was deleted in turn, to see whether the suite went red. Three did
-not. All three were a test asserting that *an* error happened where the code
-below the deleted guard also failed, differently; they are pinned now, and the
-[nineteen survivors that were not
+were wrong. So each of the **268 refusals** in the files that read somebody
+else's bytes was deleted in turn, to see whether the suite went red. **Four did
+not.** Three were a test asserting that *an* error happened where the code below
+the deleted guard also failed, differently. The fourth kept a ten-byte blob
+manifest from claiming a gibibyte it has no chunks for — a file nothing is
+waiting for and that never arrives. All four are pinned now, and the
+[twenty-three survivors that were not
 defects](https://go-crdt.github.io/docs/latest/methodology/#systematically-over-every-refusal)
 are accounted for one by one.
 
