@@ -51,14 +51,17 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **268 refusals** in the files that read somebody
-else's bytes was deleted in turn, to see whether the suite went red. **Four did
-not.** Three were a test asserting that *an* error happened where the code below
-the deleted guard also failed, differently. The fourth kept a ten-byte blob
-manifest from claiming a gibibyte it has no chunks for — a file nothing is
-waiting for and that never arrives. All four are pinned now, and the
-[twenty-three survivors that were not
-defects](https://go-crdt.github.io/docs/latest/methodology/#systematically-over-every-refusal)
+were wrong. So each of the **574 refusals** in the code that reads somebody
+else's bytes was deleted in turn, to see whether the suite went red. **Nine did
+not.** Four were a test asserting that *an* error happened where the code below
+the deleted guard also failed, differently. The others each had their own shape:
+a ten-byte blob manifest claiming a gibibyte it has no chunks for, a varint
+count used as an index where an overflowing encoding makes it negative and the
+next line panics, an off switch for tombstone collection that no test could
+reach, and two kinds of unknown value read as something this build does not
+know it is guessing at. All nine are pinned now, and the
+[fifty-seven survivors that were not
+defects](https://go-crdt.github.io/docs/latest/methodology/#deleting-every-refusal-not-the-ones-somebody-thought-to-try)
 are accounted for one by one.
 
 📖 **[go-crdt.github.io](https://go-crdt.github.io/)** · **[Documentation](https://go-crdt.github.io/docs/)**
