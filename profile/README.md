@@ -51,17 +51,26 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **574 refusals** in the code that reads somebody
-else's bytes was deleted in turn, to see whether the suite went red. **Nine did
-not.** Four were a test asserting that *an* error happened where the code below
-the deleted guard also failed, differently. The others each had their own shape:
-a ten-byte blob manifest claiming a gibibyte it has no chunks for, a varint
-count used as an index where an overflowing encoding makes it negative and the
-next line panics, an off switch for tombstone collection that no test could
-reach, and two kinds of unknown value read as something this build does not
-know it is guessing at. All nine are pinned now, and the
-[fifty-seven survivors that were not
+were wrong. So each of the **778 refusals** in the code that reads somebody
+else's bytes was deleted in turn, to see whether the suite went red. **Twenty-two
+did not**, and are pinned now.
+
+Some were an error of the wrong kind: a test asserting that *an* error happened
+where the code below the deleted guard also failed, differently. Others each had
+their own shape — a ten-byte blob manifest claiming a gibibyte it has no chunks
+for, a varint count used as an index where an overflowing encoding makes it
+negative and the next line panics, an off switch for tombstone collection that no
+test could reach.
+
+The widest class is the one no assertion about an *answer* can see. Delete the
+bound on a count a peer sent and the input is still refused, by the loop
+underneath — but it has already sized an allocation from the claim: **six bytes
+asking for 1.3 GB**, and a version vector is the first thing a peer sends. One
+more produced no answer at all rather than a failure, because a superseded run
+may name any sequence number up to 2⁶² and the suite simply waits.
+
+The [survivors that were not
 defects](https://go-crdt.github.io/docs/latest/methodology/#deleting-every-refusal-not-the-ones-somebody-thought-to-try)
-are accounted for one by one.
+are accounted for one by one, each with the measurement rather than the argument.
 
 📖 **[go-crdt.github.io](https://go-crdt.github.io/)** · **[Documentation](https://go-crdt.github.io/docs/)**
