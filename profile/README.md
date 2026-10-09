@@ -51,9 +51,9 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **778 refusals** in the code that reads somebody
-else's bytes was deleted in turn, to see whether the suite went red. **Twenty-two
-did not**, and are pinned now.
+were wrong. So each of the **810 refusals** in the code that reads somebody
+else's bytes was deleted in turn, to see whether the suite went red.
+**Twenty-three did not**, and are pinned now.
 
 Some were an error of the wrong kind: a test asserting that *an* error happened
 where the code below the deleted guard also failed, differently. Others each had
@@ -68,6 +68,14 @@ underneath — but it has already sized an allocation from the claim: **six byte
 asking for 1.3 GB**, and a version vector is the first thing a peer sends. One
 more produced no answer at all rather than a failure, because a superseded run
 may name any sequence number up to 2⁶² and the suite simply waits.
+
+Two were the same defect in different structures, which is the argument for
+sweeping mechanically rather than by inspection: a superseded run carries a
+sequence range and nothing else, and two predicates that are asked about every
+operation arriving twice were reading its other fields — where a zero looks like
+a value. In one, a peer resending a run it no longer holds is told its identity
+clashes; in the other, that it is resurrecting a collected key. Both refusals
+were already there and neither was held by anything.
 
 The [survivors that were not
 defects](https://go-crdt.github.io/docs/latest/methodology/#deleting-every-refusal-not-the-ones-somebody-thought-to-try)
