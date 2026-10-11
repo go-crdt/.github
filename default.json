@@ -8,6 +8,24 @@
     "gomodTidy",
     "gomodUpdateImportPaths"
   ],
+  "customManagers": [
+    {
+      "description": [
+        "A tool a workflow installs with `go install module@vN` is a pinned dependency that no manager reads. Renovate's gomod manager looks at go.mod; github-actions looks at `uses:`; a version inside a `run:` block is seen by neither, so it is a pin that will never be offered an update.",
+        "Measured on 2026-10-11, the day it bit: both repositories in this organisation pin `github.com/go-fleettools/fleettools/cmd/vulngate@v0.7.0` in their known-vulnerabilities lane, and the module reached v0.8.0 the same afternoon. Six hours. `github.com/rhysd/actionlint/cmd/actionlint@v1.7.12` is pinned the same way in both and happens to be current, which is luck rather than a mechanism. The gate that judges vulnerability findings going quietly stale is the worst of the three places this could happen.",
+        "depName is the MODULE, not the package: `go install` takes a package path, and the proxy knows modules. Every tool in this fleet lives at `<module>/cmd/<name>`, so an optional `/cmd/<name>` is stripped. That is a heuristic about this layout, and a module whose own path ends in `/cmd/<something>` would be read wrong — none does here.",
+        "A version of `latest` is deliberately NOT matched: there is no version to compare or rewrite. That is the same hole `gopin` was written for, where `go-version: stable` in a workflow had Renovate doing nothing for seven repositories while CI quietly moved a minor. `govulncheck@latest` in these lanes is a deliberate float, not an oversight."
+      ],
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/[^/]+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "go install (?<depName>[^\\s@]+?)(?:/cmd/[^\\s@/]+)?@(?<currentValue>v[^\\s]+)"
+      ],
+      "datasourceTemplate": "go"
+    }
+  ],
   "packageRules": [
     {
       "description": [
