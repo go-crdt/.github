@@ -51,9 +51,9 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **810 refusals** in the code that reads somebody
+were wrong. So each of the **851 refusals** in the code that reads somebody
 else's bytes was deleted in turn, to see whether the suite went red.
-**Twenty-three did not**, and are pinned now.
+**Thirty-three did not**, and are pinned now.
 
 Some were an error of the wrong kind: a test asserting that *an* error happened
 where the code below the deleted guard also failed, differently. Others each had
@@ -76,6 +76,14 @@ operation arriving twice were reading its other fields — where a zero looks li
 a value. In one, a peer resending a run it no longer holds is told its identity
 clashes; in the other, that it is resurrecting a collected key. Both refusals
 were already there and neither was held by anything.
+
+Ten are in the **browser half** — the WebRTC peer, the BroadcastChannel bus, the
+Web Locks election, the browser's own WebSocket. That half could not be swept at
+all until the tool learned to refuse it: a native `go test` does not *compile* a
+`js && wasm` file, so deleting a refusal there changes nothing the command can see
+and the verdict reads "nothing covers this" when nothing looked. Most of what it
+found is what an old browser gets instead of a stack trace in a console nobody is
+reading.
 
 The [survivors that were not
 defects](https://go-crdt.github.io/docs/latest/methodology/#deleting-every-refusal-not-the-ones-somebody-thought-to-try)
