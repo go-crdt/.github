@@ -51,9 +51,9 @@ loong64, ppc64le and s390x, the last of which is big-endian and keeps the
 deterministic encodings honest. BSD-3-Clause throughout.
 
 Full coverage says every line runs, not that anything would notice if a line
-were wrong. So each of the **851 refusals** in the code that reads somebody
+were wrong. So each of the **865 refusals** in the code that reads somebody
 else's bytes was deleted in turn, to see whether the suite went red.
-**Thirty-three did not**, and are pinned now.
+**Thirty-four did not**, and are pinned now.
 
 Some were an error of the wrong kind: a test asserting that *an* error happened
 where the code below the deleted guard also failed, differently. Others each had
