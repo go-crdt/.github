@@ -55,6 +55,15 @@ were wrong. So each of the **865 refusals** in the code that reads somebody
 else's bytes was deleted in turn, to see whether the suite went red.
 **Thirty-four did not**, and are pinned now.
 
+That campaign named *themes* rather than files, and a theme cannot say which
+files it covered. So `collab`'s root was swept again **by name**, in five
+chunks, and the total was compared with what the package reports rather than
+with the sum of the chunks — **245 subjects, 19 survivors, eleven more pinned**.
+The eleven are not additive to the thirty-four: this is the same ground, read
+properly. Three of them had looked cheaper than they were, including a
+`binary.Uvarint` count used as a slice index where an overflowing encoding
+makes it **negative**, on the bus a second browser tab writes to.
+
 Some were an error of the wrong kind: a test asserting that *an* error happened
 where the code below the deleted guard also failed, differently. Others each had
 their own shape — a ten-byte blob manifest claiming a gibibyte it has no chunks
