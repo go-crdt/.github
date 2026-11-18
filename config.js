@@ -19,7 +19,15 @@ module.exports = {
   autodiscoverFilter: ['go-crdt/**'],
   onboarding: false,
   requireConfig: 'optional',
-  dependencyDashboard: true,
+  // ⛔ AN OBJECT, NOT A BOOLEAN, AND THE BOOLEAN IS NOT MERELY OLD SPELLING.
+  // Renovate migrated this key upstream and still ACCEPTS `true` at run time,
+  // migrating it with a warning — so the runner kept working and nothing here
+  // changed. What the boolean breaks is `renovate-config-validator --strict`,
+  // which is the only check this repository has that the runner's config is
+  // still valid, and a red validator is that check going dark.
+  // go-fleettools/fleettools#305 has the account; go-xrkit and go-fleettools
+  // took the same one line.
+  dependencyDashboard: { enabled: true },
   repositoryCache: 'enabled',
   // default.json beside this file is a PRESET, and a preset reaches a
   // repository only through an `extends` that names it. Sitting in the
