@@ -14,16 +14,34 @@
         "A tool a workflow installs with `go install module@vN` is a pinned dependency that no manager reads. Renovate's gomod manager looks at go.mod; github-actions looks at `uses:`; a version inside a `run:` block is seen by neither, so it is a pin that will never be offered an update.",
         "Measured on 2026-10-11, the day it bit: both repositories in this organisation pin `github.com/go-fleettools/fleettools/cmd/vulngate@v0.7.0` in their known-vulnerabilities lane, and the module reached v0.8.0 the same afternoon. Six hours. `github.com/rhysd/actionlint/cmd/actionlint@v1.7.12` is pinned the same way in both and happens to be current, which is luck rather than a mechanism. The gate that judges vulnerability findings going quietly stale is the worst of the three places this could happen.",
         "depName is the MODULE, not the package: `go install` takes a package path, and the proxy knows modules. ⛔ This used to say every tool in this fleet lives at `<module>/cmd/<name>`, which is FALSE and argues for making the group mandatory: go-fleettools/prwait and go-fleettools/staletools have their main package at the module ROOT. The group is optional for exactly that reason, and both shapes were measured against this rule on 2026-10-18 — `…/cmd/vulngate@v0.20.1` gives `fleettools`, `…/prwait@v0.2.1` gives `prwait`, and `govulncheck@latest` is correctly unmatched. A module whose own path ends in `/cmd/<something>` would still be read wrong; none does here.",
-        "A version of `latest` is deliberately NOT matched: there is no version to compare or rewrite. That is the same hole `gopin` was written for, where `go-version: stable` in a workflow had Renovate doing nothing for seven repositories while CI quietly moved a minor. `govulncheck@latest` in these lanes is a deliberate float, not an oversight."
+        "A version of `latest` is deliberately NOT matched: there is no version to compare or rewrite. That is the same hole `gopin` was written for, where `go-version: stable` in a workflow had Renovate doing nothing for seven repositories while CI quietly moved a minor. `govulncheck@latest` in these lanes is a deliberate float, not an oversight.",
+        "⛔ `^[^#\\n]*` was added on 2026-11-19 because this rule was reading PROSE. Measured with renovate 44.252.8 against go-crdt/collab's `.github/workflows/ci.yml` at 929a2b3: without it, 7 dependencies came out of that file and 3 of them were comments explaining this very rule — `go install <module>@vN` at lines 83, 239 and 572, extracted as a module named `<module>` at version ``vN` ``. They cost nothing, and not for any reason anyone arranged: Renovate marks each `skipReason: invalid-value` and drops it before looking anything up, because ``vN` `` is not a version. That is luck, the same kind as actionlint happening to be current above. A comment documenting a REAL version is not dropped — which is exactly what the npx comment in that same file holds, `@puppeteer/browsers@3.2.7` — so the anchor belongs on both rules. After it: 4 dependencies from that file, all four of them commands."
       ],
       "customType": "regex",
       "managerFilePatterns": [
         "/^\\.github/workflows/[^/]+\\.ya?ml$/"
       ],
       "matchStrings": [
-        "go install (?<depName>[^\\s@]+?)(?:/cmd/[^\\s@/]+)?@(?<currentValue>v[^\\s]+)"
+        "(?m)^[^#\\n]*go install (?<depName>[^\\s@]+?)(?:/cmd/[^\\s@/]+)?@(?<currentValue>v[^\\s]+)"
       ],
       "datasourceTemplate": "go"
+    },
+    {
+      "description": [
+        "The npx half of the same hole, and it has already cost a week. `go-crdt/collab`'s browser lane fetched Chrome with `npx --yes @puppeteer/browsers install …`, unpinned — and `npx` prefers a binary already in `node_modules`, which the line above it had just installed: `puppeteer-core@24` depends on `@puppeteer/browsers` 2.13.2 while the registry serves 3.x, so the unpinned fetch silently ran an OLDER MAJOR chosen by a transitive dependency. go-crdt/collab#256 was red for a week on that lane and nowhere else. go-crdt/collab#278 pinned the installer, which replaced a float nobody chose with a pin nobody watched. This is that pin's manager.",
+        "⛔ `^[^#\\n]*` IS NOT DECORATION, and the proof is the only real witness this organisation has. Measured with renovate 44.252.8 — `renovate --platform=local --dry-run=extract --report-type=file`, judged by a Go reader over the report rather than a grep — against go-crdt/collab's own `.github/workflows/ci.yml` at 929a2b3: ANCHORED it extracts exactly ONE dependency, `@puppeteer/browsers` 3.2.7, whose `replaceString` carries the indentation of the command at line 580. UNANCHORED it extracts TWO, because the comment 22 lines ABOVE documents the same specifier, and both come out with the identical `replaceString` `npx --yes @puppeteer/browsers@3.2.7`. A comment is exactly where a version gets documented, so the comment is the FIRST occurrence in the file. Which of the two a rewrite would land on was not measured; what was measured is that a comment entered the dependency list and that nothing in the pair distinguishes the command from the prose about it.",
+        "Seven shapes measured on a corpus written for it, not inferred from the documentation. MATCHED: `@puppeteer/browsers@3.2.7` — the scoped name has two `@`, and depName comes out `@puppeteer/browsers`, not `browsers`, while `install chrome@149.0.7827.22` later on the same line is NOT taken; `prettier@3.6.2`; `tsx@4.21.0` with no flag between `npx` and the specifier; and `renovate@46.1.0` hidden behind `--package`, which is where a pin in THIS organisation would sit. UNMATCHED: `npx --yes @puppeteer/browsers install …`, no version to compare or rewrite, and `--package renovate@latest`, a deliberate float for the same reason `govulncheck@latest` is one in these lanes.",
+        "Known limits, stated here rather than discovered later. A command line carrying a `#` before `npx` is skipped, which is the price of the anchor and is paid against one hypothetical line to protect one real one. `currentValue` must start with a digit, so a dist-tag (`@next`, `@beta`) is treated as the float it is. Only the first `<pkg>@<version>` after `npx` is read, so a second `--package` on one line stays unseen. And `(?m)` is RE2, which is what Renovate parses `matchStrings` with: it compiled and it took effect, since excluding a comment line is something only `(?m)^` can do.",
+        "The engine this was measured on is the engine that will run it: `renovatebot/github-action` hardcodes `ghcr.io/renovatebot/renovate:44` (src/docker.ts), and 44.252.8 is that major."
+      ],
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/[^/]+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "(?m)^[^#\\n]*npx\\s+(?:-{1,2}[A-Za-z][^\\s]*\\s+)*(?<depName>@[^\\s@/]+/[^\\s@/]+|[A-Za-z0-9._][^\\s@/]*)@(?<currentValue>\\d[^\\s]*)"
+      ],
+      "datasourceTemplate": "npm"
     }
   ],
   "packageRules": [
