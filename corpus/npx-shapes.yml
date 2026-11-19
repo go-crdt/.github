@@ -1,0 +1,72 @@
+# The corpus the npx customManager in default.json was measured against, and
+# the corpus the gate will read when it exists (go-fleettools/fleettools#282).
+#
+# ⛔ THIS FILE IS NOT IN .github/workflows, AND THAT IS DELIBERATE, TWICE OVER.
+# GitHub would schedule it as a workflow, and `managerFilePatterns` in
+# default.json matches `^\.github/workflows/[^/]+\.ya?ml$` -- so Renovate does
+# not read it here either. Measuring it means copying it into a throwaway
+# checkout's .github/workflows/ next to a renovate.json holding the preset, and
+# running:
+#
+#   renovate --platform=local --dry-run=extract \
+#            --report-type=file --report-path=report.json
+#
+# then reading report.json for what manager `regex` produced. Measured that way
+# on 2026-11-19 with renovate 44.252.8 -- the same major the runner uses, since
+# renovatebot/github-action hardcodes ghcr.io/renovatebot/renovate:44 -- this
+# file yields exactly five dependencies, and the two shapes marked MUST NOT
+# MATCH yield none.
+#
+# Every `run:` below is a shape, not a command. Nothing here is meant to run.
+name: npx shapes
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  shapes:
+    runs-on: ubuntu-latest
+    steps:
+      # MUST MATCH: @puppeteer/browsers 3.2.7. The scoped name holds two `@`,
+      # and `install chrome@149.0.7827.22` later on the line must not be taken.
+      - name: scoped and pinned
+        run: npx --yes @puppeteer/browsers@3.2.7 install chrome@149.0.7827.22
+
+      # MUST MATCH: prettier 3.6.2
+      - name: unscoped and pinned
+        run: npx --yes prettier@3.6.2 --check .
+
+      # MUST MATCH: tsx 4.21.0 -- no flag between `npx` and the specifier
+      - name: no flag at all
+        run: npx tsx@4.21.0 script.ts
+
+      # MUST NOT MATCH: there is no version to compare or rewrite. This is the
+      # shape that cost go-crdt/collab a week: npx resolved it from
+      # node_modules, backwards, to an older major.
+      - name: unversioned
+        run: npx --yes @puppeteer/browsers install chrome@149.0.7827.22
+
+      # MUST NOT MATCH: a deliberate float, like `govulncheck@latest` in the
+      # vulnerability lanes. This exact line is what validates the Renovate
+      # config in this repository's own ci.yml.
+      - name: a float
+        run: npx --yes --package renovate@latest renovate-config-validator --strict renovate.json
+
+      # MUST MATCH: renovate 46.1.0. The pin hides behind --package, which is
+      # where a pinned installer in this organisation would sit.
+      - name: pinned behind --package
+        run: npx --yes --package renovate@46.1.0 renovate-config-validator --strict renovate.json
+
+      # MUST MATCH 3.2.8 AND MUST NOT MATCH 9.9.9. A comment is where a
+      # version gets documented, so a comment holding a valid specifier is the
+      # FIRST occurrence in the file, above the command it documents. Renovate
+      # rewrites by searching for the text it extracted: a rule without the
+      # `^[^#\n]*` anchor extracts both, with the same replaceString, and
+      # nothing left in the pair tells the command apart from the prose about
+      # it. go-crdt/collab's own ci.yml has exactly that pair, 22 lines apart.
+      - name: a comment holding a valid specifier
+        run: |
+          # npx --yes @puppeteer/browsers@9.9.9 install chrome@149.0.7827.22
+          npx --yes @puppeteer/browsers@3.2.8 install chrome@149.0.7827.22
