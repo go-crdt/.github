@@ -2,8 +2,18 @@
 
 Shared defaults for this organisation.
 
-`default.json` is the Renovate preset every repository here extends with
-`{"extends": ["github>go-crdt/.github"]}`.
+`default.json` is the Renovate policy of every repository here. It arrives by
+**inheritance** — `config.js` sets `inheritConfig`, and Renovate merges this
+file into each repository before reading the repository's own config — so a
+repository needs **no** `renovate.json` to get it, and must not
+`extends: ["github>go-crdt/.github"]` it: that resolves the same file a second
+time and registers every custom manager twice (#45). A repository keeps a
+`renovate.json` only for rules of its own, as `go-crdt/collab` does for
+`migrate/go.mod`.
+
+Measured, not inferred: `go-crdt/renovate-inherit-probe` has no config file,
+and the debug run 44814818275 logged `No renovate config file found` for it,
+applied the inherited `default.json`, and listed its `go install` pin once.
 
 ## A pin that lives in a `run:` block
 
