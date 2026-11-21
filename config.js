@@ -7,8 +7,11 @@
 // pull requests and the whole thing looks like it works. That is why this is
 // here rather than in a fleet-wide runner.
 //
-// Each repository extends default.json beside this file, which is where the
-// policy lives.
+// default.json beside this file is where the policy lives, and it reaches every
+// repository through inheritConfig below — NOT through an `extends` in the
+// repository's renovate.json, which would resolve the same file a second time
+// and register every customManager twice (#45, measured on a repository with no
+// config file at all, run 44814818275).
 module.exports = {
   platform: 'github',
   // The account blocks pushes that expose a non-noreply email, and Renovate's

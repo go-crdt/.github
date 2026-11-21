@@ -266,9 +266,11 @@ jobs:
       #    remote is still MISSING, which is the renamed-preset case this step
       #    exists to catch. Only "present in one of them" passes.
       #
-      #    One trap the tree path has and the remote path did not. Every
-      #    `<org>/.github` holds BOTH the preset (`default.json`) and the stub
+      #    One trap the tree path has and the remote path did not. An
+      #    `<org>/.github` often holds BOTH the preset (`default.json`) and the stub
       #    that consumes it (`renovate.json`, `{"extends": ["github>ORG/.github"]}`).
+      #    (go-crdt's no longer does: inheritConfig delivers the preset, and the
+      #    stub only applied it a second time -- #45.)
       #    Renovate falls back from the first to the second, so a tree that has
       #    lost `default.json` would resolve the preset to the stub that names
       #    it -- a file extending itself -- and this step would call that `ok`
