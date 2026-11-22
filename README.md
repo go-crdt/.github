@@ -11,6 +11,12 @@ time and registers every custom manager twice (#45). A repository keeps a
 `renovate.json` only for rules of its own, as `go-crdt/collab` does for
 `migrate/go.mod`.
 
+One known exception: `go-crdt/brand` keeps its stub `extends`. It holds image
+files and no workflow, so no check can run against a pull request there and
+the merge tool refuses one; the duplicate costs nothing in it either, since
+with no workflow file the custom managers have nothing to extract
+(go-crdt/brand#2, closed unmerged).
+
 Measured, not inferred: `go-crdt/renovate-inherit-probe` has no config file,
 and the debug run 44814818275 logged `No renovate config file found` for it,
 applied the inherited `default.json`, and listed its `go install` pin once.
